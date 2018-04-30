@@ -1,5 +1,8 @@
 rm(list = ls())
 
+
+library(pastecs)
+library(gridExtra)
 library(data.table)
 library(dplyr)
 library(ggplot2)
@@ -8,6 +11,8 @@ library(PerformanceAnalytics)
 library(VIM)
 library(DMwR)
 library(ROCR)
+
+
 
 
 df <- fread("C:/Users/u0117439/Desktop/MSc Statistics/Advanced Analytics in Bussiness/Assignments/Assignment 2/hmeq.csv",
@@ -25,9 +30,28 @@ table(df$BAD)
 summary(df[,c("BAD","LOAN","MORTDUE","VALUE","YOJ","DEROG",
                 "DELINQ","CLAGE","NINQ","CLNO","DEBTINC")])
 
+
+options(digits=1)
+options(scipen=999)
+stat.desc(df) 
+
 xtabs(~BAD + REASON, data = df)
 xtabs(~BAD + JOB, data = df)
 
+
+plot1<-ggplot(df, aes(x=factor(BAD), y=LOAN))+
+  geom_boxplot()+
+  labs(x="BAD")+
+  theme(axis.text.x=element_text(angle=-90, vjust=0.4,hjust=1))
+plot2<-ggplot(df, aes(x=factor(BAD), y=VALUE))+
+  geom_boxplot()+
+  labs(x="BAD")+
+  theme(axis.text.x=element_text(angle=-90, vjust=0.4,hjust=1))
+plot3<-ggplot(df, aes(x=factor(BAD), y=MORTDUE))+
+  geom_boxplot()+
+  labs(x="BAD")+
+  theme(axis.text.x=element_text(angle=-90, vjust=0.4,hjust=1))
+grid.arrange(plot1, plot2, plot3, ncol=3)
 
 dfmelt <- melt(df, measure.vars=c(2:4)) 
 
