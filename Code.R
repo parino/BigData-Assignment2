@@ -64,9 +64,9 @@ hmeq[hmeq$JOB=="",]$JOB<-"Unknown"
 
 #knn imputation 
 hmeq_clean<-knnImputation(hmeq, k = 10, scale = T, 
-                            meth = "weighAvg",distData = NULL)
+                          meth = "weighAvg",distData = NULL)
 summary(hmeq_clean[,c("BAD","LOAN","MORTDUE","VALUE","YOJ","DEROG",
-                "DELINQ","CLAGE","NINQ","CLNO","DEBTINC")])
+                      "DELINQ","CLAGE","NINQ","CLNO","DEBTINC")])
 
 #round
 hmeq_clean<-as.data.table(hmeq_clean)
