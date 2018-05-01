@@ -1,6 +1,6 @@
 rm(list = ls())
 
-
+#libraries
 library(pastecs)
 library(gridExtra)
 library(data.table)
@@ -12,7 +12,9 @@ library(VIM)
 library(DMwR)
 library(ROCR)
 
-
+#options
+options(digits=2)
+options(scipen=6)
 
 
 df <- fread("C:/Users/u0117439/Desktop/MSc Statistics/Advanced Analytics in Bussiness/Assignments/Assignment 2/hmeq.csv",
@@ -21,56 +23,56 @@ df <- fread("C:/Users/u0117439/Desktop/MSc Statistics/Advanced Analytics in Buss
 df<-df %>%  mutate_if(is.character, as.factor) 
 
 head(df)
+str(df)
 
 
 ########################## Exploratory analysis ###############################
 
-table(df$BAD)
-
+#descriptive statistics
 summary(df[,c("BAD","LOAN","MORTDUE","VALUE","YOJ","DEROG",
                 "DELINQ","CLAGE","NINQ","CLNO","DEBTINC")])
-
-
-options(digits=1)
-options(scipen=999)
 stat.desc(df) 
 
+table(df$BAD)
 xtabs(~BAD + REASON, data = df)
 xtabs(~BAD + JOB, data = df)
 
+#visual exploration: boxplots
+myplot_fun <- function(data,x,y,laby){
+  p <- ggplot(data,aes(x, y))
+  p <- p + geom_boxplot() + labs(x="BAD",y=laby)
+  p <- p + theme(axis.text.x=element_text(angle=-90, vjust=0.4,hjust=1))
+  return(p) 
+}
 
-plot1<-ggplot(df, aes(x=factor(BAD), y=LOAN))+
-  geom_boxplot()+
-  labs(x="BAD")+
-  theme(axis.text.x=element_text(angle=-90, vjust=0.4,hjust=1))
-plot2<-ggplot(df, aes(x=factor(BAD), y=VALUE))+
-  geom_boxplot()+
-  labs(x="BAD")+
-  theme(axis.text.x=element_text(angle=-90, vjust=0.4,hjust=1))
-plot3<-ggplot(df, aes(x=factor(BAD), y=MORTDUE))+
-  geom_boxplot()+
-  labs(x="BAD")+
-  theme(axis.text.x=element_text(angle=-90, vjust=0.4,hjust=1))
-grid.arrange(plot1, plot2, plot3, ncol=3)
-
-dfmelt <- melt(df, measure.vars=c(2:4)) 
-
-ggplot(dfmelt, aes(x=factor(BAD), y=value,fill=variable))+
-  geom_boxplot()+
-  facet_grid(.~variable)+
-  labs(x="X (binned)")+
-  theme(axis.text.x=element_text(angle=-90, vjust=0.4,hjust=1))
-
-dfmelt2 <- melt(df, measure.vars=c(7:9,11,12)) 
-ggplot(dfmelt2, aes(x=factor(BAD), y=value,fill=variable))+
-  geom_boxplot()+
-  facet_grid(.~variable)+
-  labs(x="X (binned)")+
-  theme(axis.text.x=element_text(angle=-90, vjust=0.4,hjust=1))
+p_LOAN<-myplot_fun(df,factor(df$BAD),df$LOAN,laby="LOAN")
+p_MORTDUE<-myplot_fun(df,factor(df$BAD),df$MORTDUE,laby="MORTDUE")
+p_VALUE<-myplot_fun(df,factor(df$BAD),df$VALUE,laby="VALUE")
+p_YOG<-myplot_fun(df,factor(df$BAD),df$YOJ,laby="YOJ")
+p_DEROG<-myplot_fun(df,factor(df$BAD),df$DEROG,laby="DEROG")
+p_DELINQ<-myplot_fun(df,factor(df$BAD),df$DELINQ,laby="DELINQ")
+p_CLAGE<-myplot_fun(df,factor(df$BAD),df$CLAGE,laby="CLAGE")
+p_NINQ<-myplot_fun(df,factor(df$BAD),df$NINQ,laby="NINQ")
+p_CLNO<-myplot_fun(df,factor(df$BAD),df$CLNO,laby="CLNO")
+p_DEBTINC<-myplot_fun(df,factor(df$BAD),df$DEBTINC,laby="DEBTINC")
+grid.arrange(p_LOAN, p_MORTDUE, p_VALUE,p_YOG,p_DEROG,p_DELINQ,
+             p_CLAGE,p_NINQ,p_CLNO,p_DEBTINC,ncol=5,nrow=2)
 
 
 #Correlation of continuous variables
 chart.Correlation(df[,c("LOAN","MORTDUE","VALUE","YOJ","CLAGE","DEBTINC")], histogram=TRUE, pch=19)
+
+#Correlation of continuous and count variables
+chart.Correlation(df[,c("LOAN","MORTDUE","VALUE","YOJ","DEROG","DELINQ",
+                        "CLAGE","NINQ","CLNO","DEBTINC")], histogram=TRUE, pch=19)
+
+
+###################################### Outliers ###############################
+
+#Univariate ouliers
+#only 2 most extreme observations of CLAGE problematic
+
+df$CLAGE[df$CLAGE>1000]<-NA
 
 
 ############################# Missing data ########################
@@ -126,7 +128,7 @@ for(col in num_cols_test) {
 }
 
 
-###################################### Outliers ###############################
+
 
 
 
