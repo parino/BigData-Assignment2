@@ -2,12 +2,12 @@ rm(list = ls())
 
 #libraries
 library(pastecs)
-library(gridExtra)
 library(data.table)
 library(dplyr)
 library(ggplot2)
 library(gridExtra)
 library(PerformanceAnalytics)
+library(corrplot)
 library(VIM)
 library(DMwR)
 
@@ -63,6 +63,11 @@ chart.Correlation(df[,c("LOAN","MORTDUE","VALUE","YOJ","CLAGE","DEBTINC")], hist
 #Correlation of continuous and count variables
 chart.Correlation(df[,c("LOAN","MORTDUE","VALUE","YOJ","DEROG","DELINQ",
                         "CLAGE","NINQ","CLNO","DEBTINC")], histogram=TRUE, pch=19)
+
+#fancier
+cor<-cor(df[,c("LOAN","MORTDUE","VALUE","YOJ","DEROG","DELINQ",
+             "CLAGE","NINQ","CLNO","DEBTINC")],use = "complete.obs")
+corrplot(cor)
 
 
 ###################################### Outliers ###############################
