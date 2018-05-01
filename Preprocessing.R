@@ -75,6 +75,7 @@ chart.Correlation(df[,c("LOAN","MORTDUE","VALUE","YOJ","DEROG","DELINQ",
 df$CLAGE[df$CLAGE>1000]<-NA
 
 
+
 ############################# Missing data ########################
 
 #Visual representation
@@ -129,23 +130,4 @@ for(col in num_cols_test) {
 
 
 
-
-
-
-###################################### Logistic regression ###############################
-
-fit<-glm(BAD~.,data = df_tr,family="binomial")
-summary(fit)
-
-
-#ROC curve
-p <- predict(fit, newdata=df_ts, type="response")
-pr <- prediction(p, df_ts$BAD)
-prf <- performance(pr, measure = "tpr", x.measure = "fpr")
-plot(prf);abline(a=0,b=1)
-
-#AUC
-auc <- performance(pr, measure = "auc")
-auc <- auc@y.values[[1]]
-auc
 
