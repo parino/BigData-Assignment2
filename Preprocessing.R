@@ -10,15 +10,12 @@ library(gridExtra)
 library(PerformanceAnalytics)
 library(VIM)
 library(DMwR)
-library(ROCR)
 
 #options
 options(digits=2)
 options(scipen=6)
 
-
-df <- fread("C:/Users/u0117439/Desktop/MSc Statistics/Advanced Analytics in Bussiness/Assignments/Assignment 2/hmeq.csv",
-              sep=",",header = T)
+df <- fread("C:/Users/u0117439/Documents/BigData-Assignment2/hmeq.csv",sep=",",header = T)
 
 df<-df %>%  mutate_if(is.character, as.factor) 
 
@@ -34,6 +31,7 @@ summary(df[,c("BAD","LOAN","MORTDUE","VALUE","YOJ","DEROG",
 stat.desc(df) 
 
 table(df$BAD)
+table(df$REASON);table(df$JOB)
 xtabs(~BAD + REASON, data = df)
 xtabs(~BAD + JOB, data = df)
 
@@ -70,30 +68,20 @@ chart.Correlation(df[,c("LOAN","MORTDUE","VALUE","YOJ","DEROG","DELINQ",
 ###################################### Outliers ###############################
 
 #Univariate ouliers
-#only 2 most extreme observations of CLAGE problematic
-
+#only 2 most extreme observations of CLAGE seem mistakes
 df$CLAGE[df$CLAGE>1000]<-NA
-
 
 
 ############################# Missing data ########################
 
 #Visual representation
-
 aggr_plot <- aggr(df, col=c('navyblue','red'), sortVars=TRUE, numbers=TRUE, labels=names(df), cex.axis=.5, gap=2, ylab=c("Histogram of missing data","Pattern"))
 
-#Create new category "Unknown" for REASON and JOB
-levels <- levels(df$REASON)
-levels[1] <- "Unknown"
-df$REASON <- factor(df$REASON, levels = levels)
-df$REASON[is.na(df$REASON)] <- "Unknown"
-df[df$REASON=="",]$REASON<-"Unknown"
-
-levels <- levels(df$JOB)
-levels[1] <- "Unknown"
-df$JOB <- factor(df$JOB, levels = levels)
-df$JOB[is.na(df$JOB)] <- "Unknown"
-df[df$JOB=="",]$JOB<-"Unknown"
+#mode-imputation of categorical variables
+df[df$REASON=="",]$REASON<-"DebtCon"
+df$REASON<-droplevels(df$REASON)
+df[df$JOB=="",]$JOB<-"Other"
+df$JOB<-droplevels(df$JOB)
 
 
 #Split dataset 
@@ -103,24 +91,11 @@ df_tr = df[index,]
 df_ts = df[-index,]
 
 
-#knn imputation 
-#df_clean<-knnImputation(df_tr, k = 10, scale = T, 
-#                          meth = "weighAvg",distData = NULL)
-#round
-#df_clean<-as.data.table(df_clean)
-#cols <- c("LOAN","MORTDUE","VALUE","DEROG","DELINQ","NINQ","CLNO")
-#df_clean[,(cols) := round(.SD,0), .SDcols=cols]
-#df_clean
-
-
 #median imputation of training set
 num_cols <- names(df_tr)[sapply(df_tr, is.numeric)]
 for(col in num_cols) {
   set(df_tr, i = which(is.na(df_tr[[col]])), j = col, value = median(df_tr[[col]], na.rm=TRUE))
 }
-
-summary(df_tr[,c("BAD","LOAN","MORTDUE","VALUE","YOJ","DEROG",
-                      "DELINQ","CLAGE","NINQ","CLNO","DEBTINC")])
 
 #median imputation of test set (with training median)
 num_cols_test <- names(df_ts)[sapply(df_ts, is.numeric)]
@@ -129,5 +104,17 @@ for(col in num_cols_test) {
 }
 
 
+#save pre-processed datasets
+write.table(df_tr,"C:/Users/u0117439/Documents/BigData-Assignment2/df_tr.csv",sep=";",row.names = F)
+write.table(df_ts,"C:/Users/u0117439/Documents/BigData-Assignment2/df_ts.csv",sep=";",row.names = F)
 
 
+#alternative
+#knn imputation 
+#df_clean<-knnImputation(df_tr, k = 10, scale = T, 
+#                          meth = "weighAvg",distData = NULL)
+#round
+#df_clean<-as.data.table(df_clean)
+#cols <- c("LOAN","MORTDUE","VALUE","DEROG","DELINQ","NINQ","CLNO")
+#df_clean[,(cols) := round(.SD,0), .SDcols=cols]
+#df_clean

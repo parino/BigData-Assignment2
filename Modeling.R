@@ -1,9 +1,19 @@
+rm(list = ls())
+
+#libraries
+library(data.table)
+library(ggplot2) #not used
+library(ROCR)
+
+#read pre-processed training and test datasets
+df <- fread("C:/Users/u0117439/Documents/BigData-Assignment2/df_tr.csv",sep=";",header = T)
+df_ts <- fread("C:/Users/u0117439/Documents/BigData-Assignment2/df_ts.csv",sep=";",header = T)
 
 
-df <- fread("C:/Users/u0117439/Desktop/MSc Statistics/Advanced Analytics in Bussiness/Assignments/Assignment 2/hmeq.csv",
-            sep=",",header = T)
-df_ts <- fread("C:/Users/u0117439/Desktop/MSc Statistics/Advanced Analytics in Bussiness/Assignments/Assignment 2/hmeq.csv",
-            sep=",",header = T)
+#Variance inflation factors
+corx<-cor(df_tr[,c(2:4,7:13)])
+vif<-diag(solve(corx))
+vif
 
 ###################################### Logistic regression ###############################
 
@@ -21,4 +31,5 @@ plot(prf);abline(a=0,b=1)
 auc <- performance(pr, measure = "auc")
 auc <- auc@y.values[[1]]
 auc
+
 
