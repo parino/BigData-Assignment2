@@ -32,4 +32,7 @@ auc <- performance(pr, measure = "auc")
 auc <- auc@y.values[[1]]
 auc
 
-
+library(lmtest)
+fit<-glm(BAD~.,data = df,family="binomial")
+fit2<-glm(BAD~LOAN+MORTDUE+VALUE,data = df,family="binomial")
+lrtest(fit,fit2)
