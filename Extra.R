@@ -19,6 +19,30 @@ library(factoextra)
 df_tr <- fread("C:/Users/u0117439/Documents/BigData-Assignment2/df_tr.csv",sep=";",header = T)
 df_ts <- fread("C:/Users/u0117439/Documents/BigData-Assignment2/df_ts.csv",sep=";",header = T)
 
+######################## Class imbalance ###############################
+# dealing with class imbalance problem
+
+table(df_tr$BAD)
+
+#undersample
+df_under <- ovun.sample(BAD ~ ., data = df_tr, method = "under",
+                        p = 0.5, seed = 1)$data
+table(df_under$BAD)
+
+#oversample
+df_over <- ovun.sample(BAD ~ ., data = df_tr, method = "over",
+                       p = 0.5, seed = 1)$data
+table(df_over$BAD)
+
+
+#SMOTE
+df_tr$BAD <- as.factor(df_tr$BAD)
+df_tr$REASON <- as.factor(df_tr$REASON)
+df_tr$JOB <- as.factor(df_tr$JOB)
+
+df_smote <- SMOTE(BAD ~ ., df_tr, perc.over = 100, perc.under=200)
+prop.table(table(df_tr$BAD))
+
 
 ###################################### Clustering: kmeans ###################################
 
