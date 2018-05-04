@@ -12,8 +12,8 @@ library(rpart.plot)
 library(C50)
 
 #read pre-processed training and test datasets
-df <- fread("C:/Users/u0117439/Documents/BigData-Assignment2/df_tr.csv",sep=";",header = T)
-df_ts <- fread("C:/Users/u0117439/Documents/BigData-Assignment2/df_ts.csv",sep=";",header = T)
+df_tr <- fread("/Users/anjabelcijan/Desktop/df_tr.csv",sep=";",header = T)
+df_ts <- fread("/Users/anjabelcijan/Desktop/df_ts.csv",sep=";",header = T)
 
 
 #Variance inflation factors
