@@ -114,12 +114,5 @@ write.table(df_tr,"C:/Users/u0117439/Documents/BigData-Assignment2/df_tr.csv",se
 write.table(df_ts,"C:/Users/u0117439/Documents/BigData-Assignment2/df_ts.csv",sep=";",row.names = F)
 
 
-#alternative
-#knn imputation 
-#df_clean<-knnImputation(df_tr, k = 10, scale = T, 
-#                          meth = "weighAvg",distData = NULL)
-#round
-#df_clean<-as.data.table(df_clean)
-#cols <- c("LOAN","MORTDUE","VALUE","DEROG","DELINQ","NINQ","CLNO")
-#df_clean[,(cols) := round(.SD,0), .SDcols=cols]
-#df_clean
+
+

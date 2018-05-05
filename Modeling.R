@@ -11,16 +11,34 @@ library(rpart)
 library(rpart.plot)
 library(C50)
 library(caret)
-INlibrary(lattice)
+library(lattice)
+library(lattice)
+library(DMwR)
+
+
+library(pROC)
+
+
 #read pre-processed training and test datasets
-df_tr <- fread("/Users/anjabelcijan/Desktop/df_tr.csv",sep=";",header = T)
-df_ts <- fread("/Users/anjabelcijan/Desktop/df_ts.csv",sep=";",header = T)
+df_tr <- fread("C:/Users/u0117439/Documents/BigData-Assignment2/df_tr.csv",sep=";",header = T)
+df_ts <- fread("C:/Users/u0117439/Documents/BigData-Assignment2/df_ts.csv",sep=";",header = T)
 
 
 #Variance inflation factors
 corx<-cor(df_tr[,c(2:4,7:13)])
 vif<-diag(solve(corx))
 vif
+
+
+ctrl <- trainControl(method = "cv", number = 5)
+tbmodel <- train(BAD ~ ., data = df_tr, method = "treebag",
+                 trControl = ctrl)
+
+predictors <- names(df_tr)[names(df_tr) != 'BAD']
+pred <- predict(tbmodel$finalModel, df_ts[,predictors])
+
+auc <- roc(df_ts$BAD, pred)
+print(auc)
 
 ###################################### Logistic regression ###############################
 
@@ -37,6 +55,9 @@ plot(prf);abline(a=0,b=1)
 auc <- performance(pr, measure = "auc")
 auc <- auc@y.values[[1]]
 auc
+
+
+
 
 ##################################### Decision tree #####################################
 
@@ -73,6 +94,7 @@ plot(tree_1)
 # auc=0.87
 # acc=
 
+<<<<<<< HEAD
 # c5.0 with winnowing 
 tree_2 <- C5.0(df_tr$BAD ~ ., data = df_tr, control = C5.0Control(winnow = TRUE))
 summary(tree_2)
@@ -93,6 +115,13 @@ summary(tree_4)
 plot(tree_4)
 
 # auc=0.84
+
+#prediction not working#
+predmod<- predict(tree_1 , df_ts[,-1], type="prob")
+str(predmod)
+pred <- prediction(predictions = predmod, labels = df_ts$BAD)
+perf <- performance(pred, measure = "tpr", x.measure = "fpr")
+
 
 # c5.0 with rules #
 tree_5 <- C5.0(x=df_tr[,-1], y=as.factor(df_tr$BAD), rules=TRUE)
@@ -144,6 +173,7 @@ table(df_under$BAD)
 df_over <- ovun.sample(BAD ~ ., data = df_tr, method = "over",
                        p = 0.5, seed = 1)$data
 table(df_over$BAD)
+
 # tree for undersample #
 tree.under <-rpart (BAD  ~ . , data= )
 plot(tree.under)
