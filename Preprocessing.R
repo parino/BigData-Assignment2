@@ -113,6 +113,3 @@ for(col in num_cols_test) {
 write.table(df_tr,"C:/Users/u0117439/Documents/BigData-Assignment2/df_tr.csv",sep=";",row.names = F)
 write.table(df_ts,"C:/Users/u0117439/Documents/BigData-Assignment2/df_ts.csv",sep=";",row.names = F)
 
-
-
-

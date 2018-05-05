@@ -7,6 +7,8 @@ library(data.table)
 library(dplyr)
 library(ggplot2)
 library(gridExtra)
+library(ROSE)
+library(DMwR)
 library(GGally)
 library(Rtsne)
 library(plotly)
@@ -41,12 +43,12 @@ df_tr$REASON <- as.factor(df_tr$REASON)
 df_tr$JOB <- as.factor(df_tr$JOB)
 
 df_smote <- SMOTE(BAD ~ ., df_tr, perc.over = 100, perc.under=200)
-prop.table(table(df_tr$BAD))
+prop.table(table(df_smote$BAD))
 
 
 ###################################### Clustering: kmeans ###################################
 
-df_kmeans<-df_tr[,c(2:4,7:13)]
+df_cont<-df_tr[,c(2:4,7:13)]
 
 bss <- numeric()
 wss <- numeric()
@@ -56,8 +58,8 @@ set.seed(123)
 for(i in 1:10){
   
   # For each k, calculate betweenss and tot.withinss
-  bss[i] <- kmeans(df_kmeans, centers=i)$betweenss
-  wss[i] <- kmeans(df_kmeans, centers=i)$tot.withinss
+  bss[i] <- kmeans(df_cont, centers=i)$betweenss
+  wss[i] <- kmeans(df_cont, centers=i)$tot.withinss
 }
 
 # Between-cluster sum of squares vs Choice of k
@@ -76,12 +78,12 @@ grid.arrange(p3, p4, ncol=2)
 
 # Execution of k-means with k=5
 set.seed(123)
-cluster_kmeans <- kmeans(df_kmeans, centers=5)
+cluster_kmeans <- kmeans(df_cont, centers=5)
 
 # Mean values of each cluster
-aggregate(df_kmeans, by=list(cluster_kmeans$cluster), mean)
+aggregate(df_cont, by=list(cluster_kmeans$cluster), mean)
 
-ggpairs(cbind(df_kmeans, Cluster=as.factor(cluster_kmeans$cluster)),
+ggpairs(cbind(df_cont, Cluster=as.factor(cluster_kmeans$cluster)),
         columns=1:6, aes(colour=Cluster, alpha=0.5),
         lower=list(continuous="points"),
         upper=list(continuous="blank"),
