@@ -56,9 +56,34 @@ auc <- performance(pr, measure = "auc")
 auc <- auc@y.values[[1]]
 auc
 
+#ACC
+acc <- performance(pr, measure = "acc")
+acc <- max(acc@y.values[[1]])
+acc
 
+#stepwise selection
 
+names(df_tr)
+attach(df_tr)
+fit1 <- glm(BAD~LOAN+MORTDUE+VALUE+REASON+JOB+YOJ+DEROG+DELINQ+CLAGE+NINQ+CLNO+DEBTINC ,family=binomial , dat=df_tr)
+summary(fit1)
+fitempty<- glm(BAD ~1 , family=binomial , data =df_tr )
+summary(fitempty)
+bothways=step(fitempty , list (lower=formula(fitempty) ,upper=formula(fit1)) ,
+                direction="both")
+backwards=step(fit1)
+forwards=step(fitempty,scope=list(lower=formula(fitempty),upper=formula(fit1)) ,
+                direction="forward") 
+formula(backwards)
+formula(forwards) 
+formula(bothways) 
 
+fit2 <- glm(BAD~LOAN+MORTDUE+VALUE+REASON+JOB+DEROG+DELINQ+CLAGE+NINQ+CLNO+DEBTINC,family=binomial , dat=df_tr)
+summary(fit2)
+summary(fit1)
+
+library(lmtest)
+lrtest(fit2,fit1)
 ##################################### Decision tree #####################################
 
 #basic tree#
@@ -92,9 +117,9 @@ summary(tree_1)
 plot(tree_1)
 
 # auc=0.87
-# acc=
 
-<<<<<<< HEAD
+
+
 # c5.0 with winnowing 
 tree_2 <- C5.0(df_tr$BAD ~ ., data = df_tr, control = C5.0Control(winnow = TRUE))
 summary(tree_2)
