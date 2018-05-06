@@ -21,6 +21,7 @@ library(caret)
 library(rpart)
 library(rpart.plot)
 library(rattle)
+library(glmnet)
 
 
 #read pre-processed training and test datasets
@@ -215,3 +216,38 @@ summary(treeimb)
 #confusion matrices
 pred.treeimb.class=predict(treeimb,newdata =df_ts,type="class")
 confusionMatrix(pred.treeimb.class,df_ts$BAD)
+
+
+############################### Penalized logistic regression ##############################
+
+x.train <- model.matrix(~.-1,df_tr[,-1])
+cv.lasso.fit <- cv.glmnet(x = x.train, y = df_tr$BAD, 
+                          family = "binomial", alpha = 0, nfolds = 10)
+best_lambda <- cv.lasso.fit$lambda[which.min(cv.lasso.fit$cvm)]
+
+cv.lasso.fit <- glmnet(x = x.train, y = df_tr$BAD, 
+                       family = "binomial", alpha = 0, lambda=best_lambda, nfolds = 10)
+
+
+fit.ridge <- glmnet(x=x.train, y=df_tr$BAD, family="binomial", alpha=0)
+fit.elnet <- glmnet(x=x.train, y=df_tr$BAD, family="binomial", alpha=0.5)
+fit.lasso <- glmnet(x=x.train, y=df_tr$BAD, family="binomial", alpha=1)
+
+# 10-fold Cross validation for each alpha = 0, 0.1, ... , 0.9, 1.0
+# (For plots on Right)
+for (i in 0:10) {
+  assign(paste("fit", i, sep=""), cv.glmnet(x.train,  y=df_tr$BAD, type.measure="mse", 
+                                            alpha=i/10,family="binomial"))
+}
+
+# Plot solution paths:
+par(mfrow=c(3,2))
+# For plotting options, type '?plot.glmnet' in R console
+plot(fit.lasso, xvar="lambda")
+plot(fit10, main="LASSO")
+
+plot(fit.ridge, xvar="lambda")
+plot(fit0, main="Ridge")
+
+plot(fit.elnet, xvar="lambda")
+plot(fit5, main="Elastic Net")
