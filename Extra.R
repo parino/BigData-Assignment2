@@ -15,6 +15,12 @@ library(plotly)
 library(sparcl)
 library(RSKC)
 library(factoextra)
+library(gam)
+library(ROCR)
+library(caret)
+library(rpart)
+library(rpart.plot)
+library(rattle)
 
 
 #read pre-processed training and test datasets
@@ -165,3 +171,47 @@ table(rskm_4$labels)
 # Add cluster into df
 df_tr$labels = as.factor(rskm_4$labels)
 
+
+
+############################### GAM ##############################
+
+gam1 <- gam(BAD~s(LOAN)+s(MORTDUE)+s(VALUE)+REASON+JOB+s(YOJ)
+            +s(DEROG)+s(DELINQ)+s(DELINQ)+s(CLAGE)+s(NINQ)
+            +s(CLNO)+s(DEBTINC),data = df_tr,family="binomial")
+summary(gam1)
+
+p <- predict(gam1, newdata=df_ts, type="response")
+pr <- prediction(p, df_ts$BAD)
+prf <- performance(pr, measure = "tpr", x.measure = "fpr")
+plot(prf);abline(a=0,b=1)
+
+#AUC
+auc <- performance(pr, measure = "auc")
+auc <- auc@y.values[[1]]
+auc
+
+
+
+##################################### Decision tree: CART #####################################
+
+#basic tree#
+treeimb <- rpart(BAD ~ .,data = df_tr,method="class")
+treeimb
+prob.treeimb <- predict(treeimb, newdata=df_ts , type="prob")
+pred.treeimb <- prediction(prob.treeimb[,'1'], df_ts$BAD)
+perf.treeimb <- performance(pred.treeimb, measure="tpr", x.measure="fpr")
+plot(perf.treeimb)
+auc.treeimb <- performance(pred.treeimb, measure="auc")
+auc.treeimb <- auc.treeimb@y.values[[1]]
+auc.treeimb
+
+# plots #
+prp(treeimb)
+fancyRpartPlot(treeimb)
+printcp(treeimb)
+plotcp(treeimb)
+summary(treeimb)
+
+#confusion matrices
+pred.treeimb.class=predict(treeimb,newdata =df_ts,type="class")
+confusionMatrix(pred.treeimb.class,df_ts$BAD)
